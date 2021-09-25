@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  steam-metrics
+  
+  Steam Metrics for Prometheus
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  SteamMetricsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: steam_metrics/
+      Handler: steam_metrics
+      Runtime: go1.x
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        CatchAll:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /steam-metrics
+            Method: GET
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          STEAM_WEB_API_KEY: REPLACE_WITH_YOUR_API_KEY
+          STEAM_APP_ID: REPLACE_WITH_YOUR_APPID
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  SteamMetricsAPI:
+    Description: "API Gateway endpoint URL for Prod environment for Steam Metrics"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/steam-metrics/"
+  SteamMetricsFunction:
+    Description: "Steam Metrics Function ARN"
+    Value: !GetAtt SteamMetricsFunction.Arn
+  SteamMetricsFunctionIamRole:
+    Description: "Implicit IAM Role created for Steam Metrics function"
+    Value: !GetAtt SteamMetricsFunctionRole.Arn
