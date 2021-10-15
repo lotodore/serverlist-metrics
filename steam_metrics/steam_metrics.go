@@ -41,7 +41,7 @@ type LambdaResponse struct {
 }
 
 // The incoming http Header is not used by Prometheus.
-func (r LambdaResponse) Header() http.Header {
+func (r *LambdaResponse) Header() http.Header {
 	return http.Header{}
 }
 
